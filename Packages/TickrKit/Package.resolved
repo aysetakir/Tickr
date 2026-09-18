@@ -1,0 +1,15 @@
+{
+  "originHash" : "9b7f1b9c2caa4727e7b8cdbb074e197a5db8c1fe7424d0ce07a9212c57027245",
+  "pins" : [
+    {
+      "identity" : "courier",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aysetakir/Courier.git",
+      "state" : {
+        "revision" : "025fb7e00ac9e8f76311900986989f0ed28d30e7",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
