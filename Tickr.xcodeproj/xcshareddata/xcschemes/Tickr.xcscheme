@@ -38,6 +38,16 @@
                ReferencedContainer = "container:Packages/TickrKit">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "MarketAPITests"
+               BuildableName = "MarketAPITests"
+               BlueprintName = "MarketAPITests"
+               ReferencedContainer = "container:Packages/TickrKit">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

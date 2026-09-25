@@ -1,0 +1,54 @@
+{
+  "timezone": "UTC",
+  "serverTime": 1790350758480,
+  "symbols": [
+    {
+      "symbol": "ETHBTC",
+      "status": "TRADING",
+      "baseAsset": "ETH",
+      "baseAssetPrecision": 8,
+      "quoteAsset": "BTC",
+      "quotePrecision": 8,
+      "orderTypes": [
+        "LIMIT",
+        "LIMIT_MAKER",
+        "MARKET",
+        "STOP_LOSS",
+        "STOP_LOSS_LIMIT",
+        "TAKE_PROFIT",
+        "TAKE_PROFIT_LIMIT"
+      ],
+      "isSpotTradingAllowed": true
+    },
+    {
+      "symbol": "BTCUSDT",
+      "status": "TRADING",
+      "baseAsset": "BTC",
+      "baseAssetPrecision": 8,
+      "quoteAsset": "USDT",
+      "quotePrecision": 8,
+      "orderTypes": [
+        "LIMIT",
+        "LIMIT_MAKER",
+        "MARKET",
+        "STOP_LOSS",
+        "STOP_LOSS_LIMIT",
+        "TAKE_PROFIT",
+        "TAKE_PROFIT_LIMIT"
+      ],
+      "isSpotTradingAllowed": true
+    },
+    {
+      "symbol": "XYZUSDT",
+      "status": "BREAK",
+      "baseAsset": "XYZ",
+      "baseAssetPrecision": 8,
+      "quoteAsset": "USDT",
+      "quotePrecision": 8,
+      "orderTypes": [
+        "LIMIT"
+      ],
+      "isSpotTradingAllowed": true
+    }
+  ]
+}
