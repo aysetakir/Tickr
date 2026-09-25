@@ -1,0 +1,74 @@
+name: CI
+
+# Her push ve her PR'da çalışır. Amaç: main'deki her commit'in
+# derlendiğini ve testlerinin geçtiğini kanıtlamak.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  # Aynı dal üst üste push alırsa eski koşuyu iptal et; runner boşa yanmasın.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 1. iş: UI'sız modüller (MarketCore, MarketAPI…). macOS üzerinde,
+  # simülatör açmadan koşar; bu yüzden hızlıdır ve hatayı önce bu yakalar.
+  package-tests:
+    name: swift test (TickrKit)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode sürümünü seç
+        # Paket `swift-tools-version: 6.2` kullanıyor, bu da Xcode 26+ demek.
+        # Sürümü sabit bir numaraya bağlamak yerine imajdaki en yeni kararlı
+        # sürümü seçiyoruz; runner imajı güncellenince CI kendiliğinden uyar.
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Bağımlılıkları çöz
+        working-directory: Packages/TickrKit
+        run: swift package resolve
+
+      - name: Test
+        working-directory: Packages/TickrKit
+        run: swift test
+
+  # 2. iş: App target'ı. Widget ve Live Activity ileride macOS'ta
+  # derlenmeyeceği için app'i gerçekten iOS simülatöründe kurmak şart.
+  app-tests:
+    name: xcodebuild test (Tickr)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode sürümünü seç
+        # Paket `swift-tools-version: 6.2` kullanıyor, bu da Xcode 26+ demek.
+        # Sürümü sabit bir numaraya bağlamak yerine imajdaki en yeni kararlı
+        # sürümü seçiyoruz; runner imajı güncellenince CI kendiliğinden uyar.
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Test
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Tickr.xcodeproj \
+            -scheme Tickr \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -resultBundlePath TestResults.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify
+
+      - name: Test sonuçlarını yükle
+        # Kırmızı koşuda .xcresult'ı indirip yerelde açabilmek için.
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: TestResults.xcresult
