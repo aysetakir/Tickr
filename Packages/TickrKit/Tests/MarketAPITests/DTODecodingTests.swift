@@ -4,7 +4,6 @@ import Testing
 
 @testable import MarketAPI
 
-/// Binance'ten canlı çekilmiş gerçek cevaplarla decode testleri.
 @Suite struct TickerDTOTests {
     @Test func decodesRealResponse() throws {
         let tickers = try Fixture.decode([TickerDTO].self, from: "ticker24hr").map(\.ticker)
@@ -14,13 +13,9 @@ import Testing
         let btc = try #require(tickers.first)
         #expect(btc.lastPrice == (try dec("83588.15")))
         #expect(btc.openPrice == (try dec("84331.41")))
-        // `closeTime` milisaniye; `Ticker.updatedAt` saniye cinsinden `Date`.
         #expect(btc.updatedAt == Date(timeIntervalSince1970: 1_790_350_757.010))
     }
 
-    /// Fiyatı `Decimal` tutmanın sebebi: `Double` üzerinden geçseydi
-    /// `0.00000012` birebir korunmazdı ve alarm karşılaştırmaları
-    /// yuvarlama hatasına takılırdı.
     @Test func keepsFullPrecisionOfSmallPrices() throws {
         let json = #"""
         [{"symbol":"PEPEUSDT","lastPrice":"0.00000012","openPrice":"0.00000011",
@@ -33,8 +28,6 @@ import Testing
         #expect(ticker.lastPrice - ticker.openPrice == (try dec("0.00000001")))
     }
 
-    /// Parse edilemeyen fiyatta `0`'a düşmüyoruz: ekranda "0,00 $" görünmesi
-    /// bir yana, "fiyat hedefin altına düştü" alarmı yanlışlıkla tetiklenir.
     @Test func throwsOnUnparsablePrice() throws {
         let json = #"""
         [{"symbol":"BTCUSDT","lastPrice":"n/a","openPrice":"1","highPrice":"1",
@@ -45,9 +38,6 @@ import Testing
         }
     }
 
-    /// `Decimal(string:)` verilen locale'in ondalık ayıracını kullanır:
-    /// Türkçe locale'de `"63250.12"` sessizce `63250` olur. DTO locale'i
-    /// `en_US_POSIX`'e sabitlediği için bu test cihaz dilinden bağımsız geçer.
     @Test func decimalSeparatorIsLocaleIndependent() throws {
         #expect(Decimal(string: "63250.12", locale: Locale(identifier: "tr_TR")) == 63250)
 
@@ -61,9 +51,6 @@ import Testing
 }
 
 @Suite struct KlineDTOTests {
-    /// Binance mumu nesne olarak değil dizi olarak gönderiyor; alanların
-    /// adı yok, sırası var. Bu test o sıranın doğru okunduğunu kanıtlıyor:
-    /// `high` ile `low` yer değiştirseydi aşağıdaki iki `expect` de düşerdi.
     @Test func decodesPositionalArray() throws {
         let candles = try Fixture.decode([KlineDTO].self, from: "klines").map(\.candle)
 
@@ -78,8 +65,6 @@ import Testing
         #expect(first.volume == (try dec("1647.67121")))
     }
 
-    /// Bir mumda tanım gereği `low ≤ open, close ≤ high`. Sıra yanlış
-    /// okunsaydı gerçek veride bu kırılırdı.
     @Test func ohlcIsInternallyConsistent() throws {
         for candle in try Fixture.decode([KlineDTO].self, from: "klines").map(\.candle) {
             #expect(candle.low <= candle.open)
@@ -103,18 +88,13 @@ import Testing
 }
 
 @Suite struct ExchangeInfoDTOTests {
-    /// İşlem görmeyen çiftler listelenmiyor: kullanıcı ekleyebilse bile
-    /// fiyat akmaz, satır sonsuza kadar boş kalırdı.
     @Test func keepsOnlyTradingPairs() throws {
         let pairs = try Fixture.decode(ExchangeInfoDTO.self, from: "exchangeInfo").tradingPairs
 
         #expect(pairs.map(\.symbol) == ["ETHBTC", "BTCUSDT"])
-        #expect(!pairs.map(\.symbol).contains("XYZUSDT"))  // status: BREAK
+        #expect(!pairs.map(\.symbol).contains("XYZUSDT"))
     }
 
-    /// `TradingPair` sembolü parçalardan üretiyor. Binance'in gönderdiği
-    /// `symbol` ile üretilen ayrışırsa çift sessizce yanlış gösterilmesin
-    /// diye listeden düşüyor.
     @Test func dropsPairsWhoseSymbolDoesNotMatchItsAssets() throws {
         let json = #"""
         {"symbols":[{"symbol":"WEIRD","status":"TRADING",

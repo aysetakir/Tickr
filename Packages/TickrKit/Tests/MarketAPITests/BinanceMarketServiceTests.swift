@@ -5,8 +5,6 @@ import Testing
 
 @testable import MarketAPI
 
-/// Servisin işi: doğru uca gitmek ve DTO'yu modele çevirmek. İkisi de
-/// ağa çıkmadan, `StubHTTPClient` ile test ediliyor.
 @Suite struct BinanceMarketServiceTests {
 
     // MARK: - tickers
@@ -23,8 +21,6 @@ import Testing
         ])
     }
 
-    /// Watchlist boşken ekran açılışında gereksiz istek atılmasın — üstelik
-    /// Binance `symbols=[]` çağrısına hata döndürüyor.
     @Test func tickersSkipsRequestForEmptySymbolList() async throws {
         let client = StubHTTPClient { _ in
             Issue.record("Boş listede ağa çıkılmamalıydı")
@@ -38,8 +34,6 @@ import Testing
 
     // MARK: - candles
 
-    /// "Hangi aralık kaç mum" kararı `ChartRange`'de (MarketCore) duruyor.
-    /// Servis onu olduğu gibi uca taşıyor, kendi kopyasını tutmuyor.
     @Test(arguments: ChartRange.allCases)
     func candlesUsesIntervalAndCountFromRange(range: ChartRange) async throws {
         let client = StubHTTPClient(responding: try Fixture.data("klines"))
@@ -78,8 +72,6 @@ import Testing
 
     // MARK: - hatalar
 
-    /// Servis hatayı yutmuyor. Yutsaydı (ör. boş dizi dönseydi) ekran
-    /// "hiç coin yok" derdi; oysa doğru mesaj "bağlanamadım, tekrar dene".
     @Test func propagatesTransportErrors() async throws {
         let client = StubHTTPClient(failingWith: NetworkError.transport(URLError(.notConnectedToInternet)))
         let service = BinanceMarketService(client: client)
@@ -89,9 +81,6 @@ import Testing
         }
     }
 
-    /// Bozuk gövde `NetworkError.decoding(_, raw:)` olarak çıkıyor: ham veri
-    /// hatanın içinde kalıyor, çünkü böyle bir hatayı ayıklamanın tek yolu
-    /// sunucunun tam olarak ne gönderdiğini görmek.
     @Test func surfacesDecodingErrorWithRawBody() async throws {
         let broken = Data(#"[{"symbol":"BTCUSDT","lastPrice":"n/a"}]"#.utf8)
         let client = StubHTTPClient(responding: broken)

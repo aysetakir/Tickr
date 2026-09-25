@@ -36,8 +36,6 @@ let package = Package(
 
         .testTarget(name: "MarketCoreTests", dependencies: ["MarketCore"]),
 
-        // Fixture'lar `resources` ile bundle'a giriyor; testler gerçek
-        // cevapları `Bundle.module`dan okuyor.
         .testTarget(
             name: "MarketAPITests",
             dependencies: ["MarketAPI"],
